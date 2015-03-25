@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html>
+<head>
+<!-- <script type="text/javascript" src="index.js"> </script> -->
+<link href="bootstrap.css" type="text/css">
+<!-- <script src="index.js"></script> -->
+<head>
+<body onload="randFS(1, -47, -25);">
+<div class = "container">
+	<div style="text-align:center;">
+		<canvas id="myCanvas" width="1200px" height="300px" style="border:1px solid #d3d3d3; background-color: #000000; margin: 0; padding: 0;">
+		Your browser does not support the HTML5 canvas tag.</canvas>
+		<br>
+		<button id="background" onclick="drawBackground()">Paint Background</button>
+		<button id="draw" onclick="draw()">Draw Name</button>
+		<button id="clear" onclick="reDraw()">Reset</button>
+	</div>
+</div>
+<script>
+var c = document.getElementById("myCanvas");
+var ctx = c.getContext("2d");
+var Xrange = [];
+var Yrange = [];
+// randFS(1, -47, -25);
+var prevX = Math.floor(Math.random()*(50)+58);
+var prevY = Math.floor(Math.random()*(50)+50);
+var iX = 0;
+var size;
+var request;
+var nameRequest;
+
+function clear() {
+	cancelRequestAnimFrame(request);
+	cancelRequestAnimFrame(nameRequest);
+	ctx.fillStyle ="#000000";
+	ctx.fillRect(0, 0, c.width, c.height);
+	prevX = Math.floor(Math.random()*(50)+58);
+	prevY = Math.floor(Math.random()*(50)+50);
+	Xrange = [];
+	Yrange = [];
+	iX = 0;
+	randFS(1, -47, -25);
+	ctx.beginPath();
+	request = 0;
+}
+
+window.requestAnimFrame = (function () {
+    return window.requestAnimationFrame || window.webkitRequestAnimationFrame || window.mozRequestAnimationFrame || window.oRequestAnimationFrame || window.msRequestAnimationFrame || function ( /* function */ callback, /* DOMElement */ element) {
+        window.setTimeout(callback, 1000/60);
+    };
+})();
+
+window.cancelRequestAnimFrame = ( function() {
+    return window.cancelAnimationFrame            ||
+        window.webkitCancelRequestAnimationFrame    ||
+        window.mozCancelRequestAnimationFrame         ||
+        window.oCancelRequestAnimationFrame        ||
+        window.msCancelRequestAnimationFrame        ||
+        clearTimeout
+} )();
+
+function drawBackground() {
+	var prevX = Math.floor(Math.random()*(50)+58);
+	var prevY = Math.floor(Math.random()*(50)+50);
+	ctx.strokeStyle ="#" +  Math.floor(Math.random()*0xFFFFFF).toString(16);
+	ctx.beginPath();
+	newX = Math.floor(Math.random()*(1408)+1);
+	newY = Math.floor(Math.random()*(400)+1);
+	size = Math.floor(Math.random()*1.5+1);
+	ctx.arc(newX, newY, size, 0 ,2*Math.PI);
+	ctx.fillStyle ="#" +  Math.floor(Math.random()*0xFFFFFF).toString(16);
+	ctx.fill();
+	ctx.moveTo(prevX, prevY);
+	prevX = newX;
+	prevY = newY;
+	request = window.requestAnimFrame(drawBackground);
+	// setTimeout(function(){
+	// 	cancelRequestAnimFrame(request);                
+	// }, 30*1000)
+
+}
+function reDraw() {
+	clear();
+}
+var offset;;
+function draw() {
+	// clear();
+	// for(var i=0;i<3000;i++){
+		var color = "#" +  Math.floor(Math.random()*0xFFFFFF).toString(16);
+		ctx.strokeStyle = color;
+		ctx.beginPath();
+		var index = iX;
+		offset = 50;
+		if (Xrange[index].length == 0 || Yrange[index].length == 0) {
+			iX +=1;
+		}
+		if (Xrange[index].length == undefined) {
+			newX = Math.floor(Math.random()*(offset)+Xrange[index]);
+		}
+		if (Yrange[index].length == undefined) {
+			newY = Math.floor(Math.random()*(offset)+Yrange[index]);
+		}
+		if (Xrange[index].length !== undefined) {
+			var a = Math.floor(Math.random() * Xrange[index].length);
+			newX = Math.floor(Math.random()*(offset)+Xrange[index][a]);
+			Xrange[index].splice(a,1);
+		}
+		if (Yrange[index].length != undefined) {
+			var b = Math.floor(Math.random() * Yrange[index].length);
+			newY = Math.floor(Math.random()*(offset)+Yrange[index][b]);
+			if (Yrange[index].length > 3 || Xrange[index].length == undefined) {
+				Yrange[index].splice(b,1);
+			}
+		}
+		if ((Yrange[index].length != undefined && Yrange[index].length > 3) && Xrange[index].length != undefined) {
+			var c = Math.floor(Math.random() * Yrange[index].length);
+			newX = Math.floor(Math.random()*(offset)+Xrange[index][c]);
+			newY = Math.floor(Math.random()*(offset)+Yrange[index][c]);
+			Xrange[index].splice(c,1);
+			Yrange[index].splice(c,1);
+		}
+		size = Math.floor(Math.random()*3+1);
+		ctx.arc(newX, newY, size, 0 ,2*Math.PI);
+		ctx.fillStyle = color;
+		ctx.fill();
+		ctx.lineWidth = Math.floor(Math.random()*4);
+		ctx.moveTo(prevX, prevY);
+		ctx.lineTo(newX, newY);
+		ctx.stroke();
+		prevX = newX;
+		prevY = newY;
+	// }
+	if (iX > Xrange.length) {
+		iX = 0;
+		prevX = Math.floor(Math.random()*(50)+58);
+		prevY = Math.floor(Math.random()*(50)+50);
+		return;
+	}
+	nameRequest = window.requestAnimFrame(draw);
+	// setTimeout(function(){
+	// 	cancelRequestAnimFrame(nameRequest);                
+	// }, 60*1000)
+}
+
+function rangeArr(array, p1, inc, p2) {
+	var temp = [];
+	if (typeof p2 == "undefined" && typeof inc == "undefined") {
+		array.push(p1);
+	}
+	else {
+		if (p2 > p1) {
+			for (var i = p1; i <= p2; i+=inc) {
+				temp.push(i);
+			}
+			array.push(temp);
+		}
+		else {
+			for (var i = p1; i >= p2; i-=inc) {
+				temp.push(i);
+			}
+			array.push(temp);
+		}
+	}
+}
+
+function randFS(inc, Xshift, Yshift) {
+	//F
+	rangeArr(Xrange,58+Xshift);
+	rangeArr(Yrange,50+Yshift, inc, 250+Yshift);
+	//F
+	rangeArr(Xrange,58+Xshift, inc, 254+Xshift);
+	rangeArr(Yrange,50+Yshift);
+	//F
+	rangeArr(Xrange,58+Xshift, inc, 146+Xshift);
+	rangeArr(Yrange,150+Yshift);
+	//E
+	rangeArr(Xrange,322+Xshift);
+	rangeArr(Yrange,50+Yshift, inc, 250+Yshift);
+	//E
+	rangeArr(Xrange,322+Xshift, inc, 498+Xshift);
+	rangeArr(Yrange,50+Yshift);
+	//E
+	rangeArr(Xrange,322+Xshift, inc, 410+Xshift);
+	rangeArr(Yrange,150+Yshift);
+	//E
+	rangeArr(Xrange,322+Xshift, inc, 498+Xshift);
+	rangeArr(Yrange,250+Yshift);
+	//L
+	rangeArr(Xrange,586+Xshift);
+	rangeArr(Yrange,50+Yshift, inc, 250+Yshift);
+	//L
+	rangeArr(Xrange,586+Xshift, inc, 762+Xshift);
+	rangeArr(Yrange,250+Yshift);
+	//I
+	rangeArr(Xrange,874+Xshift);
+	rangeArr(Yrange,50+Yshift, inc, 250+Yshift);
+	//I
+	rangeArr(Xrange,830+Xshift, inc, 918+Xshift);
+	rangeArr(Yrange,50+Yshift);
+	//I
+	rangeArr(Xrange,830+Xshift, inc, 918+Xshift);
+	rangeArr(Yrange,250+Yshift);
+	//X
+	rangeArr(Xrange,1004+Xshift, .5, 1204+Xshift);
+	rangeArr(Yrange,50+Yshift, .5, 250+Yshift);
+	//X
+	rangeArr(Xrange,1204+Xshift, .5, 1004+Xshift);
+	rangeArr(Yrange,50+Yshift, .5, 250+Yshift);
+}
+</script>
+</body>
+</html>
